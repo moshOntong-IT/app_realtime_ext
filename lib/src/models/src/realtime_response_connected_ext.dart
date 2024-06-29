@@ -15,7 +15,7 @@ class RealtimeResponseConnectedExt {
   /// Create a RealtimeResponseConnected from a map
   factory RealtimeResponseConnectedExt.fromMap(Map<String, dynamic> map) {
     return RealtimeResponseConnectedExt(
-      channels: List<String>.from(map['channels'] as List<String>),
+      channels: List<String>.from(map['channels'] as List<dynamic>),
       user: Map<String, dynamic>.from(
         (map['user'] as Map<String, dynamic>?) ?? {},
       ),
