@@ -37,10 +37,10 @@ class RealtimeBrowserExt extends RealtimeBaseExt with RealtimeMixinExt {
   }
 
   @override
-  Future<void> dispose() => dispose();
+  Future<void> dispose() => toDispose();
 
   @override
-  Future<void> reconnect() => reconnect();
+  Future<void> reconnect() => toReconnect();
 
   @override
   Stream<RealtimeState> get state => stateController.stream;

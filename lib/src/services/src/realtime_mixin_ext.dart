@@ -68,8 +68,8 @@ mixin RealtimeMixinExt {
 
   Future<dynamic> _closeConnection() async {
     _staleTimer?.cancel();
-    await _websocketSubscription?.cancel();
-    await _websok?.sink.close(status.normalClosure, 'Ending session');
+    unawaited(_websocketSubscription?.cancel());
+    unawaited(_websok?.sink.close(status.normalClosure, 'Ending session'));
     _lastUrl = null;
     isConnected = false;
     isReconnecting = false;
@@ -163,7 +163,7 @@ mixin RealtimeMixinExt {
             subscription.controller.addError(err, stack);
           }
           if (_websok?.closeCode != null && _websok?.closeCode != 1008) {
-            reconnect();
+            toReconnect();
           }
         },
       );
@@ -193,7 +193,7 @@ mixin RealtimeMixinExt {
         isReconnecting = false;
       } else {
         if (autoReconnect) {
-          await reconnect();
+          await toReconnect();
         }
       }
     }
@@ -231,7 +231,7 @@ mixin RealtimeMixinExt {
     );
     final controller = StreamController<RealtimeMessage>.broadcast();
     _channels.addAll(channels);
-    await reconnect();
+    await toReconnect();
 
     final subscription = RealtimeSubscriptionExt(
       controller: controller,
@@ -247,7 +247,7 @@ mixin RealtimeMixinExt {
         _cleanup(channels);
 
         if (_channels.isNotEmpty) {
-          await reconnect();
+          await toReconnect();
         } else {
           await _closeConnection();
         }
@@ -283,12 +283,12 @@ mixin RealtimeMixinExt {
       );
     } else {
       debugPrint('Reconnecting');
-      reconnect();
+      toReconnect();
     }
   }
 
   /// A function to reconnect the realtime
-  Future<void> reconnect() async {
+  Future<void> toReconnect() async {
     if (!isInitialized) {
       throw AppwriteException('Realtime is not initialized');
     }
@@ -318,7 +318,7 @@ mixin RealtimeMixinExt {
   }
 
   /// To dispose the resources of realtime
-  Future<void> dispose() async {
+  Future<void> toDispose() async {
     if (!isInitialized) {
       throw AppwriteException('Realtime is not initialized');
     }
@@ -327,8 +327,8 @@ mixin RealtimeMixinExt {
     }
     stateController.add(const DisposingState());
     isDisposed = true;
-    await _closeConnection();
-    await stateController.close();
+    unawaited(_closeConnection());
+    unawaited(stateController.close());
   }
 
   void _resetStaleTimer() {
@@ -336,7 +336,7 @@ mixin RealtimeMixinExt {
     _staleTimer = Timer(Duration(seconds: staleTimeout), () {
       stateController.add(const StaleTimeoutState());
       if (isConnected && autoReconnect) {
-        reconnect();
+        toReconnect();
       }
     });
   }

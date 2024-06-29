@@ -33,14 +33,15 @@ class RealtimeIoExt extends RealtimeBaseExt with RealtimeMixinExt {
   }
 
   @override
-  Future<void> reconnect() => reconnect();
-  @override
   Future<RealtimeSubscriptionExt> subscribe({required List<String> channels}) {
     return subscribeTo(channels: channels);
   }
 
   @override
-  Future<void> dispose() => dispose();
+  Future<void> dispose() => toDispose();
+
+  @override
+  Future<void> reconnect() => toReconnect();
 
   @override
   Stream<RealtimeState> get state => stateController.stream;
