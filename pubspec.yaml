@@ -1,0 +1,27 @@
+name: app_realtime_ext
+description: A Realtime Clone from Appwrite Flutter sdk. The purpose of this is to extend the capability and separate from sdk-generator
+version: 0.1.0+1
+publish_to: none
+
+environment:
+  sdk: "^3.3.0"
+  flutter: "^3.19.0"
+
+dependencies:
+  appwrite: ^12.0.4
+  cookie_jar: ^4.0.8
+  flutter:
+    sdk: flutter
+  http: ^1.2.1
+  logging: ^1.2.0
+  universal_html: ^2.2.4
+  universal_platform: ^1.1.0
+  web_socket_channel: ^2.4.5
+
+dependency_overrides:
+  web_socket_channel: ^3.0.0
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mocktail: ^1.0.3
+  very_good_analysis: ^5.1.0
