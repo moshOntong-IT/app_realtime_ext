@@ -194,12 +194,13 @@ mixin RealtimeMixinExt {
       if (isConnected) {
         stateController.add(const ConnectedState());
         attemptsCount = 0;
-        isReconnecting = false;
       } else {
         if (autoReconnect) {
           await toReconnect();
         }
       }
+
+      isReconnecting = false;
     }
   }
 
@@ -226,6 +227,7 @@ mixin RealtimeMixinExt {
   Future<RealtimeSubscriptionExt> subscribeTo({
     required List<String> channels,
   }) async {
+    isReconnecting = false;
     final id = ID.unique();
     attemptsCount = 0;
     stateController.add(
