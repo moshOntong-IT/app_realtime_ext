@@ -72,8 +72,6 @@ mixin RealtimeMixinExt {
     unawaited(_websok?.sink.close(status.normalClosure, 'Ending session'));
     _lastUrl = null;
     isConnected = false;
-
-    stateController.add(const DisconnectedState());
   }
 
   Future<void> _createSocket() async {
@@ -99,6 +97,8 @@ mixin RealtimeMixinExt {
         _websok = await getWebSocket(uri);
       }
       debugPrint('subscription: $_lastUrl');
+
+      isConnected = true;
 
       _websocketSubscription = _websok?.stream.listen(
         (response) {
@@ -155,6 +155,7 @@ mixin RealtimeMixinExt {
           }
           _channels.clear();
           _closeConnection();
+          stateController.add(const DisconnectedState());
         },
         onError: (Object err, StackTrace stack) {
           stateController.add(
