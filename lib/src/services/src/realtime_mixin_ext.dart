@@ -73,6 +73,8 @@ mixin RealtimeMixinExt {
     _lastUrl = null;
     isConnected = false;
     isReconnecting = false;
+    attemptsCount = 0;
+    _creatingSocket = false;
     stateController.add(const DisconnectedState());
   }
 
@@ -109,6 +111,7 @@ mixin RealtimeMixinExt {
               handleError(data);
 
             case RealtimeResponseType.connected:
+              attemptsCount = 0;
 
               // channels, user?
               final message = RealtimeResponseConnectedExt.fromMap(data.data);
@@ -132,6 +135,9 @@ mixin RealtimeMixinExt {
               _resetStaleTimer();
 
             case RealtimeResponseType.event:
+              isConnected = true;
+              _resetStaleTimer();
+              attemptsCount = 0;
               final message = RealtimeMessage.fromMap(data.data);
               for (final subscription in _subscriptions.values) {
                 for (final channel in message.channels) {
