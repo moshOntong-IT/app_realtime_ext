@@ -23,7 +23,7 @@ sealed class RealtimeExt {
   /// - `[client]` is the Appwrite client used for the connection.
   /// - `[retryAttempts]` specifies the number of attempts to reconnect to the
   ///  server. Defaults to 3.
-  /// - `[staleTimeout]` defines the duration (in milliseconds) after which the
+  /// - `[staleTimeout]` defines the duration (in seconds) after which the
   ///  connection is considered stale and is closed. This ensures the freshness
   ///  of the connection.
   /// - `[autoReconnect]` is a boolean flag that, when set to `true`, will
