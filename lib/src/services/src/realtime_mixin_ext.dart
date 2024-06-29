@@ -72,9 +72,7 @@ mixin RealtimeMixinExt {
     unawaited(_websok?.sink.close(status.normalClosure, 'Ending session'));
     _lastUrl = null;
     isConnected = false;
-    isReconnecting = false;
-    attemptsCount = 0;
-    _creatingSocket = false;
+
     stateController.add(const DisconnectedState());
   }
 
@@ -229,6 +227,7 @@ mixin RealtimeMixinExt {
     required List<String> channels,
   }) async {
     final id = ID.unique();
+    attemptsCount = 0;
     stateController.add(
       SubscribingState(
         id: id,
@@ -341,7 +340,7 @@ mixin RealtimeMixinExt {
     _staleTimer?.cancel();
     _staleTimer = Timer(Duration(seconds: staleTimeout), () {
       stateController.add(const StaleTimeoutState());
-      if (isConnected && autoReconnect) {
+      if (isConnected && autoReconnect && !isDisposed && !isReconnecting) {
         toReconnect();
       }
     });
