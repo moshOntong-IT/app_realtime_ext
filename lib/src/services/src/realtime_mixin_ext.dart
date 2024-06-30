@@ -337,6 +337,7 @@ mixin RealtimeMixinExt {
     isReconnecting = true;
     attemptsCount++;
     stateController.add(const ReconnectingState());
+    await _closeConnection();
     await _createSocket();
   }
 
