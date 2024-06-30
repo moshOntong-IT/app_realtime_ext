@@ -149,6 +149,7 @@ mixin RealtimeMixinExt {
           }
         },
         onDone: () {
+          debugPrint('Websocket done');
           attemptsCount = 0;
           final subscriptions =
               List<RealtimeSubscriptionExt>.from(_subscriptions.values);
@@ -160,6 +161,7 @@ mixin RealtimeMixinExt {
           stateController.add(const DisconnectedState());
         },
         onError: (Object err, StackTrace stack) {
+          debugPrint('Websocket error: $err');
           isConnected = false;
           stateController.add(
             ErrorState(
@@ -176,6 +178,7 @@ mixin RealtimeMixinExt {
         },
       );
     } catch (e, stackTrace) {
+      debugPrint('Failed to connect to WebSocket: $e');
       stateController.add(
         ErrorState(
           error: e,
