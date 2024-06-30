@@ -68,8 +68,10 @@ mixin RealtimeMixinExt {
 
   Future<dynamic> _closeConnection() async {
     _staleTimer?.cancel();
-    unawaited(_websocketSubscription?.cancel());
-    unawaited(_websok?.sink.close(status.normalClosure, 'Ending session'));
+    // Cancel the websocket subscription and wait for it to complete
+    await _websocketSubscription?.cancel();
+    await _websok?.sink.close(status.normalClosure, 'Ending session');
+    _websok = null;
     _lastUrl = null;
     isConnected = false;
   }
@@ -335,8 +337,9 @@ mixin RealtimeMixinExt {
     }
     stateController.add(const DisposingState());
     isDisposed = true;
-    unawaited(_closeConnection());
-    unawaited(stateController.close());
+    _staleTimer?.cancel();
+    await _closeConnection();
+    await stateController.close();
   }
 
   void _resetStaleTimer() {

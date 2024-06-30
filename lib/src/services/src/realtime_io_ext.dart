@@ -59,12 +59,25 @@ class RealtimeIoExt extends RealtimeBaseExt with RealtimeMixinExt {
     final cookies = await (client as ClientIO).cookieJar.loadForRequest(uri);
     headers = {HttpHeaders.cookieHeader: CookieManagerExt.getCookies(cookies)};
 
-    final websok = IOWebSocketChannel(
-      (client as ClientIO).selfSigned
-          ? await _connectForSelfSignedCert(uri, headers)
-          : await WebSocket.connect(uri.toString(), headers: headers),
-    );
-    return websok;
+    // final websok = IOWebSocketChannel(
+    //   (client as ClientIO).selfSigned
+    //       ? await _connectForSelfSignedCert(uri, headers)
+    //       : await WebSocket.connect(uri.toString(), headers: headers),
+    // );
+    // return websok;
+
+    try {
+      final websok = IOWebSocketChannel(
+        (client as ClientIO).selfSigned
+            ? await _connectForSelfSignedCert(uri, headers)
+            : await WebSocket.connect(uri.toString(), headers: headers),
+      );
+      return websok;
+    } catch (e) {
+      // Handle and log the error
+      debugPrint('Failed to connect to WebSocket: $e');
+      rethrow;
+    }
   }
 
   // https://github.com/jonataslaw/getsocket/blob/f25b3a264d8cc6f82458c949b86d286cd0343792/lib/src/io.dart#L104
