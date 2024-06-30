@@ -70,6 +70,7 @@ mixin RealtimeMixinExt {
     _staleTimer?.cancel();
     // Cancel the websocket subscription and wait for it to complete
     await _websocketSubscription?.cancel();
+    _websocketSubscription = null;
     await _websok?.sink.close(status.normalClosure, 'Ending session');
     _websok = null;
     _lastUrl = null;
@@ -77,7 +78,14 @@ mixin RealtimeMixinExt {
   }
 
   Future<void> _createSocket() async {
+    // ! I dont know if this have to be here
+    // ! But what I want to do is to ensure that
+    // ! the websocket subscription is closed
+    // ! before creating a new one
+    // ! Because according to my debug phase, I found out that
+    // ! I got Bad state: Stream has already been listened to
     await _websocketSubscription?.cancel();
+    _websocketSubscription = null;
     if (_creatingSocket || _channels.isEmpty) return;
     stateController.add(const ConnectingState());
     _creatingSocket = true;
