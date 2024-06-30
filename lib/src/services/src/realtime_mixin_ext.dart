@@ -77,6 +77,7 @@ mixin RealtimeMixinExt {
   }
 
   Future<void> _createSocket() async {
+    await _websocketSubscription?.cancel();
     if (_creatingSocket || _channels.isEmpty) return;
     stateController.add(const ConnectingState());
     _creatingSocket = true;
