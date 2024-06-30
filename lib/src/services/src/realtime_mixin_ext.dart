@@ -158,6 +158,7 @@ mixin RealtimeMixinExt {
           stateController.add(const DisconnectedState());
         },
         onError: (Object err, StackTrace stack) {
+          isConnected = false;
           stateController.add(
             ErrorState(
               error: err,
@@ -321,7 +322,6 @@ mixin RealtimeMixinExt {
     isReconnecting = true;
     attemptsCount++;
     stateController.add(const ReconnectingState());
-    await _closeConnection();
     await _createSocket();
   }
 
@@ -344,7 +344,9 @@ mixin RealtimeMixinExt {
     _staleTimer = Timer(Duration(seconds: staleTimeout), () {
       stateController.add(const StaleTimeoutState());
       if (isConnected && autoReconnect && !isDisposed && !isReconnecting) {
-        toReconnect();
+        unawaited(toReconnect());
+      } else {
+        unawaited(_closeConnection());
       }
     });
   }
