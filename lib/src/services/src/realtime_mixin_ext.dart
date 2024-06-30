@@ -110,8 +110,9 @@ mixin RealtimeMixinExt {
       debugPrint('subscription: $_lastUrl');
 
       isConnected = true;
-
-      _websocketSubscription = _websok?.stream.listen(
+      // ! I got Bad state: Stream has already been listened to
+      // ! That is why i tried to make it multiple subscription
+      _websocketSubscription = _websok?.stream.asBroadcastStream().listen(
         (response) {
           final data = RealtimeResponseExt.fromJson(response as String);
           switch (data.type) {
