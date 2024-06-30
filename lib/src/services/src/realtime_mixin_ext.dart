@@ -45,8 +45,8 @@ mixin RealtimeMixinExt {
   /// The number of retry attempts
   late final int retryAttempts;
 
-  /// The stale timeout
-  late final int staleTimeout;
+  /// The ping interval
+  late final int pingInterval;
 
   /// Indicates if the realtime should auto reconnect
   late final bool autoReconnect;
@@ -145,11 +145,11 @@ mixin RealtimeMixinExt {
                 }
               }
 
-              _resetStaleTimer();
+            // _resetStaleTimer();
 
             case RealtimeResponseType.event:
               isConnected = true;
-              _resetStaleTimer();
+              // _resetStaleTimer();
               attemptsCount = 0;
               final message = RealtimeMessage.fromMap(data.data);
               for (final subscription in _subscriptions.values) {
@@ -361,21 +361,21 @@ mixin RealtimeMixinExt {
     await stateController.close();
   }
 
-  void _resetStaleTimer() {
-    _staleTimer?.cancel();
-    _staleTimer = Timer(Duration(seconds: staleTimeout), () {
-      stateController.add(const StaleTimeoutState());
-      if (isConnected && autoReconnect && !isDisposed && !isReconnecting) {
-        unawaited(toReconnect());
-      } else {
-        unawaited(_closeConnection());
-      }
-    });
-  }
+  // void _resetStaleTimer() {
+  //   _staleTimer?.cancel();
+  //   _staleTimer = Timer(Duration(seconds: staleTimeout), () {
+  //     stateController.add(const StaleTimeoutState());
+  //     if (isConnected && autoReconnect && !isDisposed && !isReconnecting) {
+  //       unawaited(toReconnect());
+  //     } else {
+  //       unawaited(_closeConnection());
+  //     }
+  //   });
+  // }
 
   void _startPingTimer() {
     _pingTimer?.cancel(); // Cancel any existing timer
-    _pingTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+    _pingTimer = Timer.periodic(Duration(seconds: pingInterval), (timer) {
       if (isConnected) {
         _websok?.sink.add('{"type":"ping"}');
       } else {

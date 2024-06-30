@@ -89,3 +89,11 @@ class StaleTimeoutState implements RealtimeState {
   /// {@macro StaleTimeoutState}
   const StaleTimeoutState();
 }
+
+/// {@template PingState}
+/// A state indicating that the Realtime is pinging
+/// {@endtemplate}
+class PingState implements RealtimeState {
+  /// {@macro PingState}
+  const PingState();
+}

@@ -18,7 +18,7 @@ class RealtimeIoExt extends RealtimeBaseExt with RealtimeMixinExt {
   Future<void> initialize({
     required Client client,
     int retryAttempts = 3,
-    int staleTimeout = 900,
+    int pingInterval = 30,
     bool autoReconnect = true,
   }) async {
     this.client = client;
@@ -28,7 +28,7 @@ class RealtimeIoExt extends RealtimeBaseExt with RealtimeMixinExt {
     isDisposed = false;
 
     this.retryAttempts = retryAttempts;
-    this.staleTimeout = staleTimeout;
+    this.pingInterval = pingInterval;
     this.autoReconnect = autoReconnect;
   }
 

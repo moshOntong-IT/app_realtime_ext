@@ -45,7 +45,7 @@ sealed class RealtimeExt {
   Future<void> initialize({
     required Client client,
     int retryAttempts = 3,
-    int staleTimeout = 900,
+    int pingInterval = 30,
     bool autoReconnect = true,
   });
 
@@ -69,7 +69,7 @@ abstract class RealtimeBaseExt implements RealtimeExt {
   Future<void> initialize({
     required Client client,
     int retryAttempts = 3,
-    int staleTimeout = 900,
+    int pingInterval = 30,
     bool autoReconnect = true,
   });
 
