@@ -40,6 +40,7 @@ mixin RealtimeMixinExt {
   StreamSubscription<dynamic>? _websocketSubscription;
 
   Timer? _staleTimer;
+  Timer? _pingTimer;
 
   /// The number of retry attempts
   late final int retryAttempts;
@@ -75,6 +76,8 @@ mixin RealtimeMixinExt {
     _websok = null;
     _lastUrl = null;
     isConnected = false;
+    stateController.add(const DisconnectedState());
+    _stopPingTimer();
   }
 
   Future<void> _createSocket() async {
@@ -187,6 +190,8 @@ mixin RealtimeMixinExt {
           }
         },
       );
+
+      _startPingTimer();
     } catch (e, stackTrace) {
       debugPrint('Failed to connect to WebSocket: $e');
       stateController.add(
@@ -366,5 +371,20 @@ mixin RealtimeMixinExt {
         unawaited(_closeConnection());
       }
     });
+  }
+
+  void _startPingTimer() {
+    _pingTimer?.cancel(); // Cancel any existing timer
+    _pingTimer = Timer.periodic(Duration(seconds: 30), (timer) {
+      if (isConnected) {
+        _websok?.sink.add('{"type":"ping"}');
+      } else {
+        timer.cancel();
+      }
+    });
+  }
+
+  void _stopPingTimer() {
+    _pingTimer?.cancel();
   }
 }
