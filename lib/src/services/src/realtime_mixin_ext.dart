@@ -377,6 +377,7 @@ mixin RealtimeMixinExt {
     _pingTimer?.cancel(); // Cancel any existing timer
     _pingTimer = Timer.periodic(Duration(seconds: pingInterval), (timer) {
       if (isConnected) {
+        stateController.add(const PingState());
         _websok?.sink.add('{"type":"ping"}');
       } else {
         timer.cancel();
