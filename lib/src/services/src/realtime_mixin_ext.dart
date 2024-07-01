@@ -51,6 +51,12 @@ mixin RealtimeMixinExt {
   /// Indicates if the realtime should auto reconnect
   late final bool autoReconnect;
 
+  /// The state of the realtime
+  RealtimeState state = const DisconnectedState();
+
+  /// The connection completer
+  Completer<void> connectionCompleter = Completer<void>();
+
   /// Indicates if the realtime is initialized
   bool isInitialized = false;
 
@@ -67,6 +73,21 @@ mixin RealtimeMixinExt {
   /// Indicate the remeaning attempts
   int attemptsCount = 0;
 
+  void _setState(RealtimeState newState) {
+    state = newState;
+    stateController.add(newState);
+
+    if (newState is ConnectedState || newState is ErrorState) {
+      if (!connectionCompleter.isCompleted) {
+        connectionCompleter.complete();
+      }
+    } else if (newState is DisconnectedState || newState is ReconnectingState) {
+      if (connectionCompleter.isCompleted) {
+        connectionCompleter = Completer<void>();
+      }
+    }
+  }
+
   Future<dynamic> _closeConnection() async {
     _staleTimer?.cancel();
     // Cancel the websocket subscription and wait for it to complete
@@ -76,7 +97,8 @@ mixin RealtimeMixinExt {
     _websok = null;
     _lastUrl = null;
     isConnected = false;
-    stateController.add(const DisconnectedState());
+    // stateController.add(const DisconnectedState());
+    _setState(const DisconnectedState());
     _stopPingTimer();
   }
 
@@ -90,7 +112,9 @@ mixin RealtimeMixinExt {
     await _websocketSubscription?.cancel();
     _websocketSubscription = null;
     if (_creatingSocket || _channels.isEmpty) return;
-    stateController.add(const ConnectingState());
+    // stateController.add(const ConnectingState());
+
+    _setState(const ConnectingState());
     _creatingSocket = true;
     isConnected = false;
     _staleTimer?.cancel();
@@ -171,12 +195,19 @@ mixin RealtimeMixinExt {
           }
           _channels.clear();
           _closeConnection();
-          stateController.add(const DisconnectedState());
+          // stateController.add(const DisconnectedState());
+          _setState(const DisconnectedState());
         },
         onError: (Object err, StackTrace stack) {
           debugPrint('Websocket error: $err');
           isConnected = false;
-          stateController.add(
+          // stateController.add(
+          //   ErrorState(
+          //     error: err,
+          //     stackTrace: stack,
+          //   ),
+          // );
+          _setState(
             ErrorState(
               error: err,
               stackTrace: stack,
@@ -194,7 +225,13 @@ mixin RealtimeMixinExt {
       _startPingTimer();
     } catch (e, stackTrace) {
       debugPrint('Failed to connect to WebSocket: $e');
-      stateController.add(
+      // stateController.add(
+      //   ErrorState(
+      //     error: e,
+      //     stackTrace: stackTrace,
+      //   ),
+      // );
+      _setState(
         ErrorState(
           error: e,
           stackTrace: stackTrace,
@@ -214,7 +251,8 @@ mixin RealtimeMixinExt {
       }
 
       if (isConnected) {
-        stateController.add(const ConnectedState());
+        // stateController.add(const ConnectedState());
+        _setState(const ConnectedState());
         attemptsCount = 0;
       } else {
         if (autoReconnect) {
@@ -252,7 +290,13 @@ mixin RealtimeMixinExt {
     isReconnecting = false;
     final id = ID.unique();
     attemptsCount = 0;
-    stateController.add(
+    // stateController.add(
+    //   SubscribingState(
+    //     id: id,
+    //     channels: channels,
+    //   ),
+    // );
+    _setState(
       SubscribingState(
         id: id,
         channels: channels,
@@ -266,7 +310,12 @@ mixin RealtimeMixinExt {
       controller: controller,
       channels: channels,
       close: () async {
-        stateController.add(
+        // stateController.add(
+        //   UnSubscribingState(
+        //     id: id,
+        //   ),
+        // );
+        _setState(
           UnSubscribingState(
             id: id,
           ),
@@ -304,7 +353,13 @@ mixin RealtimeMixinExt {
         response.data['code'] as int,
       );
 
-      stateController.add(
+      // stateController.add(
+      //   ErrorState(
+      //     error: exception,
+      //     stackTrace: StackTrace.current,
+      //   ),
+      // );
+      _setState(
         ErrorState(
           error: exception,
           stackTrace: StackTrace.current,
@@ -330,7 +385,13 @@ mixin RealtimeMixinExt {
     }
 
     if (attemptsCount >= retryAttempts) {
-      stateController.add(
+      // stateController.add(
+      //   ErrorState(
+      //     error: AppwriteException('Max retry attempts reached'),
+      //     stackTrace: StackTrace.current,
+      //   ),
+      // );
+      _setState(
         ErrorState(
           error: AppwriteException('Max retry attempts reached'),
           stackTrace: StackTrace.current,
@@ -341,7 +402,9 @@ mixin RealtimeMixinExt {
 
     isReconnecting = true;
     attemptsCount++;
-    stateController.add(const ReconnectingState());
+    // stateController.add(const ReconnectingState());
+    _setState(const ReconnectingState());
+
     await _closeConnection();
     await _createSocket();
   }
@@ -354,7 +417,8 @@ mixin RealtimeMixinExt {
     if (isDisposed) {
       throw AppwriteException('Realtime is already disposed');
     }
-    stateController.add(const DisposingState());
+    // stateController.add(const DisposingState());
+    _setState(const DisposingState());
     isDisposed = true;
     _staleTimer?.cancel();
     await _closeConnection();
@@ -364,7 +428,8 @@ mixin RealtimeMixinExt {
   // void _resetStaleTimer() {
   //   _staleTimer?.cancel();
   //   _staleTimer = Timer(Duration(seconds: staleTimeout), () {
-  //     stateController.add(const StaleTimeoutState());
+  ////     stateController.add(const StaleTimeoutState());
+  //    _setState(const StaleTimeoutState());
   //     if (isConnected && autoReconnect && !isDisposed && !isReconnecting) {
   //       unawaited(toReconnect());
   //     } else {
@@ -377,7 +442,8 @@ mixin RealtimeMixinExt {
     _pingTimer?.cancel(); // Cancel any existing timer
     _pingTimer = Timer.periodic(Duration(seconds: pingInterval), (timer) {
       if (isConnected) {
-        stateController.add(const PingState());
+        // stateController.add(const PingState());
+        _setState(const PingState());
         _websok?.sink.add('{"type":"ping"}');
       } else {
         timer.cancel();

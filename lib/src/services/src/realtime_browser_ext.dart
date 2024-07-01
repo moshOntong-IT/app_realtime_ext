@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:app_realtime_ext/app_realtime_ext.dart';
@@ -43,7 +44,7 @@ class RealtimeBrowserExt extends RealtimeBaseExt with RealtimeMixinExt {
   Future<void> reconnect() => toReconnect();
 
   @override
-  Stream<RealtimeState> get state => stateController.stream;
+  Stream<RealtimeState> get stateStream => stateController.stream;
 
   Future<WebSocketChannel> _getWebSocketBrowserPlatform(Uri uri) async {
     await (client as ClientBrowser).init();
@@ -59,4 +60,10 @@ class RealtimeBrowserExt extends RealtimeBaseExt with RealtimeMixinExt {
     }
     return null;
   }
+
+  @override
+  Completer<void> get getConnectionCompleter => connectionCompleter;
+
+  @override
+  RealtimeState get getState => state;
 }

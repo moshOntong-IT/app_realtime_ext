@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:app_realtime_ext/src/models/models.dart';
 import 'package:appwrite/appwrite.dart';
 
@@ -15,33 +17,27 @@ sealed class RealtimeExt {
   /// {@macro realtime_ext}
   factory RealtimeExt() => createRealtime();
 
-  /// Initializes the Realtime instance.
+  /// Initializes the Realtime Extension service.
   ///
-  /// This method sets up a Realtime connection with the server, allowing for
-  ///  real-time data exchange.
+  /// This method initializes the Realtime Extension service with the provided
+  ///  parameters.
   ///
-  /// - `[client]` is the Appwrite client used for the connection.
-  /// - `[retryAttempts]` specifies the number of attempts to reconnect to the
-  ///  server. Defaults to 3.
-  /// - `[staleTimeout]` defines the duration (in seconds) after which the
-  ///  connection is considered stale and is closed. This ensures the freshness
-  ///  of the connection.
-  /// - `[autoReconnect]` is a boolean flag that, when set to `true`, will
-  ///  automatically attempt to reconnect if the connection is closed due
-  ///  to [`staleTimeout`] or other reasons.
+  /// Parameters:
+  /// - `client`: The client used for communication with the Realtime Extension
+  ///  service.
+  /// - `retryAttempts`: The number of retry attempts to make in case of
+  ///  connection failure. Default is 3.
+  /// - `pingInterval`: The interval (in seconds) at which ping messages will
+  ///  be sent to keep the connection alive. Default is 30. Unfornutely, the
+  /// Appwrite Realtime does not support two-way communication. To handle this,
+  /// when we receive an error from the WebSocket, the service will attempt to
+  /// reconnect. This helps to keep our realtime connection alive.
+  /// - `autoReconnect`: Whether to automatically reconnect in case of
+  /// disconnection. Default is true.
   ///
-  /// Example:
-  /// ```dart
-  /// Realtime realtime = Realtime(
-  ///   client: appwriteClient,
-  ///   retryAttempts: 5,
-  ///   staleTimeout: 30000,
-  ///   autoReconnect: true,
-  /// );
-  /// ```
+  /// Returns:
+  /// A `Future` that completes when the initialization is finished.
   ///
-  /// Note: Ensure that the `client` is properly configured and
-  ///  authenticated before initializing the Realtime instance.
   Future<void> initialize({
     required Client client,
     int retryAttempts = 3,
@@ -56,7 +52,17 @@ sealed class RealtimeExt {
   Future<void> dispose();
 
   /// Getting the state of the Realtime
-  Stream<RealtimeState> get state;
+  Stream<RealtimeState> get stateStream;
+
+  /// Get the connection completer
+  /// This also have benefit if we try to create a new document
+  /// So you can check if the connection is ready or not. However,
+  /// even the connection is ready, you have to double check
+  /// if the connection has error or not.
+  Completer<void> get getConnectionCompleter;
+
+  /// Get the connection state
+  RealtimeState get getState;
 
   /// Subscribe to a list of channels
   Future<RealtimeSubscriptionExt> subscribe({required List<String> channels});
@@ -80,7 +86,7 @@ abstract class RealtimeBaseExt implements RealtimeExt {
   Future<void> dispose();
 
   @override
-  Stream<RealtimeState> get state;
+  Stream<RealtimeState> get stateStream;
   @override
   Future<RealtimeSubscriptionExt> subscribe({required List<String> channels});
 

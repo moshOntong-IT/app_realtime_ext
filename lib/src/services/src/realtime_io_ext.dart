@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
@@ -44,7 +45,7 @@ class RealtimeIoExt extends RealtimeBaseExt with RealtimeMixinExt {
   Future<void> reconnect() => toReconnect();
 
   @override
-  Stream<RealtimeState> get state => stateController.stream;
+  Stream<RealtimeState> get stateStream => stateController.stream;
 
   Future<WebSocketChannel> _getWebSocket(Uri uri) async {
     Map<String, String>? headers;
@@ -128,4 +129,10 @@ class RealtimeIoExt extends RealtimeBaseExt with RealtimeMixinExt {
       rethrow;
     }
   }
+
+  @override
+  Completer<void> get getConnectionCompleter => connectionCompleter;
+
+  @override
+  RealtimeState get getState => state;
 }
