@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:app_realtime_ext/app_realtime_ext.dart';
 import 'package:appwrite/appwrite.dart';
@@ -223,6 +224,11 @@ mixin RealtimeMixinExt {
       );
 
       _startPingTimer();
+    } on WebSocketException catch (e, _) {
+      debugPrint('Websocket: $e');
+      if (e.message.contains('was not upgraded to websocket')) {
+        await toReconnect();
+      }
     } catch (e, stackTrace) {
       debugPrint('Failed to connect to WebSocket: $e');
       // stateController.add(
