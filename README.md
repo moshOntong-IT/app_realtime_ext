@@ -111,6 +111,16 @@ According to this site https://tools.ietf.org/html/rfc6455
 
 However, the Appwrite Websocket does not support two-way communication. So it is expected that the server will send you a message something like this. `"{"type":"error","data":{"code":1003,"message":"Message type is not valid."}}`. In this case, the package will automatically reconnect to the server. But the expected must be a pong message from the server. So, the `pingInterval` is the interval between each ping message to the server. If the server does not respond with a pong message, the package will automatically reconnect to the server. Hopefully, the Appwrite team will implement the pong message in the future.
 
+## `subscribe`
+
+The subscribe method is similar to the Appwrite SDK. It subscribes to a channel and listens to the events. However, this time the method is asynchronous.
+
+```dart
+Future<void> subscribe(String channel) async {
+    await realtime.subscribe([channel]);
+}
+```
+
 ## `stateStream` and `state`
 
 The `stateStream` is a `Stream` that emits the `RealtimeState` of the websocket connection.
