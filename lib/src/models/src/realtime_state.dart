@@ -82,14 +82,6 @@ class ErrorState implements RealtimeState {
   final StackTrace? stackTrace;
 }
 
-/// {@template StaleTimeoutState}
-/// A state indicating that the Realtime has reached the stale timeout
-/// {@endtemplate}
-class StaleTimeoutState implements RealtimeState {
-  /// {@macro StaleTimeoutState}
-  const StaleTimeoutState();
-}
-
 /// {@template PingState}
 /// A state indicating that the Realtime is pinging
 /// {@endtemplate}
