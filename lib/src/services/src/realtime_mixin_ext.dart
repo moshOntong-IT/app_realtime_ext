@@ -84,7 +84,6 @@ mixin RealtimeMixinExt {
       }
     } else if (newState is DisconnectedState || newState is ReconnectingState) {
       if (connectionCompleter.isCompleted) {
-        connectionCompleter.complete();
         connectionCompleter = Completer<void>();
       }
     }
