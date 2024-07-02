@@ -84,6 +84,7 @@ mixin RealtimeMixinExt {
       }
     } else if (newState is DisconnectedState || newState is ReconnectingState) {
       if (connectionCompleter.isCompleted) {
+        connectionCompleter.complete();
         connectionCompleter = Completer<void>();
       }
     }
@@ -228,6 +229,7 @@ mixin RealtimeMixinExt {
       debugPrint('Websocket: $e');
       if (e.message.contains('was not upgraded to websocket')) {
         await toReconnect();
+        return;
       }
     } catch (e, stackTrace) {
       debugPrint('Failed to connect to WebSocket: $e');
