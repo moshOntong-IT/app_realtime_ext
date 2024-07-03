@@ -83,6 +83,10 @@ mixin RealtimeMixinExt {
         connectionCompleter.complete();
       }
     } else if (newState is DisconnectedState || newState is ReconnectingState) {
+      if (!connectionCompleter.isCompleted) {
+        connectionCompleter.complete();
+      }
+
       if (connectionCompleter.isCompleted) {
         connectionCompleter = Completer<void>();
       }
@@ -224,26 +228,34 @@ mixin RealtimeMixinExt {
       );
 
       _startPingTimer();
-    } on WebSocketException catch (e, _) {
+    } on WebSocketException catch (e, stackTrace) {
       debugPrint('Websocket: $e');
-      if (e.message.contains('was not upgraded to websocket')) {
-        await toReconnect();
-        return;
-      }
-    } catch (e, stackTrace) {
-      debugPrint('Failed to connect to WebSocket: $e');
-      // stateController.add(
-      //   ErrorState(
-      //     error: e,
-      //     stackTrace: stackTrace,
-      //   ),
-      // );
       _setState(
         ErrorState(
           error: e,
           stackTrace: stackTrace,
         ),
       );
+      if (e.message.contains('was not upgraded to websocket')) {
+        await toReconnect();
+        return;
+      }
+    } catch (e, stackTrace) {
+      isConnected = false;
+      _setState(
+        ErrorState(
+          error: e,
+          stackTrace: stackTrace,
+        ),
+      );
+      debugPrint('Failed to connect to: $e');
+      // stateController.add(
+      //   ErrorState(
+      //     error: e,
+      //     stackTrace: stackTrace,
+      //   ),
+      // );
+
       // if (e is AppwriteException) {
       //   rethrow;
       // }
