@@ -20,6 +20,7 @@ class RealtimeIoExt extends RealtimeBaseExt with RealtimeMixinExt {
     required Client client,
     int retryAttempts = 3,
     int pingInterval = 30,
+    bool pingEnabled = true,
     bool autoReconnect = true,
   }) async {
     this.client = client;
@@ -28,6 +29,7 @@ class RealtimeIoExt extends RealtimeBaseExt with RealtimeMixinExt {
     isInitialized = true;
     isDisposed = false;
 
+    this.pingEnabled = pingEnabled;
     this.retryAttempts = retryAttempts;
     this.pingInterval = pingInterval;
     this.autoReconnect = autoReconnect;
@@ -43,6 +45,11 @@ class RealtimeIoExt extends RealtimeBaseExt with RealtimeMixinExt {
 
   @override
   Future<void> reconnect() => toReconnect();
+
+  @override
+  void setPingEnabled({required bool enabled}) {
+    toSetPingEnabled(enabled: enabled);
+  }
 
   @override
   Stream<RealtimeState> get stateStream => stateController.stream;

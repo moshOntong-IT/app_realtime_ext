@@ -52,6 +52,9 @@ mixin RealtimeMixinExt {
   /// Indicates if the realtime should auto reconnect
   late final bool autoReconnect;
 
+  /// Indicated if the ping should be enable or not.
+  late final bool pingEnabled;
+
   /// The state of the realtime
   RealtimeState state = const DisconnectedState();
 
@@ -227,7 +230,9 @@ mixin RealtimeMixinExt {
         },
       );
 
-      _startPingTimer();
+      if (pingEnabled) {
+        _startPingTimer();
+      }
     } on WebSocketException catch (e, stackTrace) {
       debugPrint('Websocket: $e');
       _setState(
@@ -456,6 +461,15 @@ mixin RealtimeMixinExt {
   //     }
   //   });
   // }
+
+  void toSetPingEnabled({required bool enabled}) {
+    pingEnabled = enabled;
+    if (pingEnabled) {
+      _startPingTimer();
+    } else {
+      _stopPingTimer();
+    }
+  }
 
   void _startPingTimer() {
     _pingTimer?.cancel(); // Cancel any existing timer

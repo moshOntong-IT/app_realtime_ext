@@ -42,6 +42,7 @@ sealed class RealtimeExt {
     required Client client,
     int retryAttempts = 3,
     int pingInterval = 30,
+    bool pingEnabled = true,
     bool autoReconnect = true,
   });
 
@@ -50,6 +51,9 @@ sealed class RealtimeExt {
 
   /// Disposing the Realtime resources
   Future<void> dispose();
+
+  /// Set the ping enabled
+  void setPingEnabled({required bool enabled});
 
   /// Getting the state of the Realtime
   Stream<RealtimeState> get stateStream;
@@ -76,6 +80,7 @@ abstract class RealtimeBaseExt implements RealtimeExt {
     required Client client,
     int retryAttempts = 3,
     int pingInterval = 30,
+    bool pingEnabled = true,
     bool autoReconnect = true,
   });
 
@@ -84,6 +89,9 @@ abstract class RealtimeBaseExt implements RealtimeExt {
 
   @override
   Future<void> dispose();
+
+  @override
+  void setPingEnabled({required bool enabled});
 
   @override
   Stream<RealtimeState> get stateStream;

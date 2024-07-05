@@ -93,6 +93,9 @@ The `initialize` method has the following parameters:
 - `client` (required): An instance of `Client` from Appwrite Flutter SDK.
 - `retryAttempts` (optional): The number of retry attempts to connect to the server. Default is 3.
 - `pingInterval` (optional): The interval between each retry attempt in milliseconds. Default is 30 seconds.
+
+- `pingEnabled` (optional): Whether to enable the ping pong mechanism. Default is `true`.
+
 - `autoReconnect` (optional): Whether to automatically reconnect to the server when the connection is lost. Default is `true`. However, the `autoReconnect` will be stopped when it reaches the `retryAttempts`.
   <br>
 
@@ -116,8 +119,8 @@ However, the Appwrite Websocket does not support two-way communication. So it is
 The subscribe method is similar to the Appwrite SDK. It subscribes to a channel and listens to the events. However, this time the method is asynchronous.
 
 ```dart
-Future<void> subscribe(String channel) async {
-    await realtime.subscribe([channel]);
+Future<RealtimeSubscriptionExt> subscribe(String channel) async {
+  return await realtime.subscribe([channel]);
 }
 ```
 
@@ -172,12 +175,23 @@ Future<void> doSomething() async{
 }
 ```
 
-### `reconnect`
+## `reconnect`
 
 You can manually reconnect to the server by calling the `reconnect` method.
 
 ```dart
 realtime.reconnect();
+```
+
+<br>
+<br>
+
+## `setPingEnabled`
+
+Whether to enable the ping pong mechanism. Default is `true`.
+
+```dart
+realtime.setPingEnabled(false);
 ```
 
 ---
